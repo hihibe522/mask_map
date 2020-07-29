@@ -1,0 +1,158 @@
+*,
+*::after
+,*::before{
+    box-sizing: border-box;
+   
+}
+
+/* menu */
+
+.sideMenu{
+    font-family: Microsoft JhengHei ;
+    z-index: 999;
+    position: fixed;
+    transition: 2.5s all cubic-bezier(0.19, 1, 0.22, 1);
+    color: ivory;
+    transform: translateX(-100%);
+}
+.sideMenu.animate{
+ transform: translateX(0%);
+ color: saddlebrown;
+}
+.tag_Menu{
+    cursor: pointer;
+    font-size: 3rem;
+    text-align: center;
+    width: 70px;
+    height: 80px;
+    background-color: cadetblue;
+    border-radius: 0 10px 10px 0 ;
+    display: inline-block;
+    position: absolute;
+    top: 20px;
+    left: 25vw;
+}
+.content_menu{
+    padding: 10px;
+    position: relative;
+    background-color: cadetblue;
+    width: 25vw;
+    /* height: 100vh; */
+    
+}
+
+/* mask card  */
+.menu_content{
+    width: 100%;
+    background-color: lightsteelblue;
+    border-radius: 10px;
+    padding: 3%;
+    height: 75vh;
+    /* transition: 2.5s all cubic-bezier(0.19, 1, 0.22, 1); */
+    overflow: hidden;
+   
+}
+/* .menu_content::-webkit-scrollbar {
+    visibility: hidden;
+} */
+.menu_content span{
+    font-size: 0.8rem;
+}
+.menu_content:hover{
+    overflow: auto;
+}
+.menu_content:hover .pharmacy_info{
+    margin-right: 0px;
+}
+
+
+.pharmacy_info{   
+    padding: 3%;
+    margin-bottom: 3%;
+    background-color:blanchedalmond;
+    color: darkcyan;
+    border-radius: 10px;
+    margin-right: 15px;
+}
+.pharmacy_info:hover{
+    background-color: lightgray;
+    
+}
+.pharmacy_info div{
+    margin-bottom: 1%;  
+}
+.pharmacy_info h3 span{
+    font-size: 2rem;
+    float: right;
+    margin-right: 5%;
+    cursor: pointer;
+}
+.pharmacy_nums{
+    display: flex;
+    justify-content: space-around;
+    /* height: 5vh; */   
+}
+.pharmacy_nums div{
+    width: 40%;
+    background-color: darksalmon;
+    color: ivory;
+    border-radius: 5px;
+    font-size: 2rem;
+    text-align: center;
+    padding: 1%;
+}
+.pharmacy_nums span{
+   display: block;
+}
+
+
+/* map */
+
+#mapid{
+    width:100%;
+    height:100vh;
+    
+}
+.marker-cluster-small {
+    background-color: rgba(181, 226, 140, 0.6);
+    }
+.marker-cluster-small div {
+    background-color: rgba(110, 204, 57, 0.6);
+    }
+
+.marker-cluster-medium {
+    background-color: rgba(241, 211, 87, 0.6);
+    }
+.marker-cluster-medium div {
+    background-color: rgba(240, 194, 12, 0.6);
+    }
+
+.marker-cluster-large {
+    background-color: rgba(253, 156, 115, 0.6);
+    }
+.marker-cluster-large div {
+    background-color: rgba(241, 128, 23, 0.6);
+    }
+
+.marker-cluster {
+    background-clip: padding-box;
+    border-radius: 20px;
+    }
+.marker-cluster div {
+    width: 30px;
+    height: 30px;
+    margin-left: 5px;
+    margin-top: 5px;
+
+    text-align: center;
+    border-radius: 15px;
+    font: 12px "Helvetica Neue", Arial, Helvetica, sans-serif;
+    }
+.marker-cluster span {
+    line-height: 30px;
+    }
+
+
+.leaflet-popup-content-wrapper, .leaflet-popup-tip{
+    font-family: Microsoft JhengHei ;
+}

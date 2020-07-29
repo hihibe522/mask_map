@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" 
+    href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="js/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+    <script src="https://kit.fontawesome.com/ace1ab2931.js" crossorigin="anonymous"></script>   
+    <link rel="stylesheet" href="css/mask.css">
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
+    integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+    crossorigin=""/>
+     <!-- Make sure you put this AFTER Leaflet's CSS -->
+    <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
+    integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
+    crossorigin=""></script>
+
+    <!-- 圖標區域插件 -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.4.1/MarkerCluster.css"></link> 
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.4.1/MarkerCluster.Default.css"></link> 
+    <title>Mask</title>
+</head>
+<body>
+    <div class="sideMenu">
+        <div class="tag_Menu"><i class="fas fa-globe-americas"></i></div>     
+        <div class="content_menu">
+            <h1>Mask Map</h1>
+            <div class="menu_header">
+                <h2>今天日期 <span class="today"></span></h2>
+                <div class="select_bar">
+        
+                    <div class="form-group row no-gutters d-flex justify-content-around">
+                        <div class="col-6">
+                          <select name="county" id="county" class="custom-select"></select>
+                        </div>
+                        <div class="col-5 ">
+                            <select name="city" id="city" class="custom-select"></select>
+                        </div>
+                    </div>
+            </div> 
+           <div class="menu_content">
+               <!-- <div class="pharmacy_info">
+                   <h3 class="title">德興藥局<span> <i class="fa fa-send"></i></span></h3>
+                   <div class="address">花蓮縣吉安鄉宜昌村中華路２段２０１號</div>
+                   <div class="phone">03-8267211</div>
+                   <div class="pharmacy_nums">
+                    <div class="adult"><span>成人口罩數量</span>664</div>
+                       <div class="child"><span>兒童口罩數量</span>854</div>                       
+                   </div>
+                   <div class="note"><span>備註:</span>口罩販售時間為上午8:30售完為止</div>
+               </div>    -->
+           </div>
+        </div>     
+    </div>
+    </div>
+    <div id="mapid" class="container-fluid"></div>
+
+    <!-- 圖標區域插件 -->
+    <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.4.1/leaflet.markercluster.js"></script>
+    <script>
+
+        // menu 移動動畫
+        $('.tag_Menu,.content_menu').on('mouseenter',function(){
+            $(this).parent().addClass('animate');
+        })
+        $('.tag_Menu,.content_menu').on('mouseleave',function(){
+            $(this).parent().removeClass('animate');
+        })
+
+        // 今天日期
+        const today = new Date() 
+        var year = today.getFullYear();
+        var month = today.getMonth() + 1;
+        var date = today.getDate();
+        var date_string  =`${year}年${month}月${date}日`;
+        // console.log(date_string)
+        $('.today').text( date_string);
+
+        // 藥局ajax
+        var pharmacy_data = (function get_pharmacy_data(){
+            let data =[];
+            $.ajax({
+                type :"GET",
+                url  : "https://raw.githubusercontent.com/kiang/pharmacies/master/json/points.json",
+                async:false,
+                dataType: "json",
+                success : function(res) {
+                       data = res.features;
+                        }
+                    })              
+                return data;
+                })(); 
+            console.log(pharmacy_data);
+        // 縣市地區選單    
+        $.ajax({
+                type :"GET",
+                url  : "cityName.json",
+                dataType: "json",
+                success : function(res) {
+                        res.forEach(element => {
+                            var countyStr =`<option value="${element.CityName}">${element.CityName}</option>}`
+                            $('#county').append(countyStr);
+                        });
+
+                        var county = $('#county').val();
+                        console.log(county);
+                        var selArea = res.filter(function(item, index, array){
+                                 return item.CityName == county;
+                             });
+                            selArea = selArea[0].AreaList;
+                       
+                        $('#city').append('<option value="全部地區" selected>全部地區</option>');
+                        selArea.forEach(element => {
+                            let areaListStr =`<option value="${element.AreaName}">${element.AreaName}</option>}`
+                            $('#city').append(areaListStr);
+                        });
+
+                        //縣市選單變動 =>鄉鎮區域選單更動
+                        $('#county').on('change',function(){
+                            $('#city').empty();
+                            county = $('#county :selected').val();
+                            selArea = res.filter(function(item, index, array){
+                                    return item.CityName == county;
+                            });
+                            // console.log(selArea);
+                            $('#city').append('<option value="全部地區" selected>全部地區</option>');
+                            selArea = selArea[0].AreaList;
+                            selArea.forEach(element => {
+                                areaListStr =`<option value="${element.AreaName}">${element.AreaName}</option>}`;
+                                $('#city').append(areaListStr);
+                            });
+                                       
+                            });
+                        console.log(pharmacy_data);
+
+                        let beginplace =  pharmacy_data.filter(function(item){
+                            return item.properties.county == county
+                        })
+                        console.log(beginplace);
+                        setMap(beginplace);
+                        card_in(beginplace);
+                                                                         
+                }
+            });
+
+            //監聽 select區域變化
+            document.getElementById('county').addEventListener('change', place);
+            document.getElementById('city').addEventListener('change', place);
+            document.querySelectorAll('.title span');
+            
+            //select選單控制顯示區域
+            function place(e){
+               
+                if(e.target.getAttribute("id")=='county'){
+                    $('#city').val("全部地區");
+                }
+                let selData = pharmacy_data;
+                var now_county = $('#county').val();
+                var now_city =  $('#city').val();
+                console.log(now_county,now_city);
+
+                console.log(selData);                 
+                if(now_city != '全部地區'){
+                    selData = pharmacy_data.filter(function(item,idex,array){
+                        return item.properties.county == now_county ;
+                    });
+                    selData = selData.filter(function(item,idex,array){
+                        return item.properties.town == now_city ;
+                    });
+                    // return selData;
+                }else{
+                    selData = pharmacy_data.filter(function(item,idex,array){
+                        return item.properties.county == now_county ;
+                    });
+                }
+                // console.log(selData);
+                // map.setView([selData[0].geometry.coordinates[1],selData[0].geometry.coordinates[0]],15);
+                card_in(selData);
+                setMap(selData);
+               
+            }
+            //map移動地點
+            function setMap(selData){
+                map.setView([selData[0].geometry.coordinates[1],selData[0].geometry.coordinates[0]],15);
+
+            }
+
+            //藥局卡片資料渲染
+            function card_in(selData){
+                $(".menu_content").empty();
+                for(let i=0; i<selData.length;i++){
+                    pharmacy_card = `<div class="pharmacy_info">
+                                        <h3 class="title">${selData[i].properties.name}<span><i id="${selData[i].properties.id}" class="fa fa-send"></i></span></h3>
+                                        <div class="address">${selData[i].properties.address}</div>
+                                        <div class="phone">${selData[i].properties.phone}</div>
+                                        <div class="pharmacy_nums">
+                                            <div class="adult"><span>成人口罩數量</span>${selData[i].properties.mask_adult}</div>
+                                            <div class="child"><span>兒童口罩數量</span>${selData[i].properties.mask_child}</div>                       
+                                        </div>
+                                        <div class="note"><span>備註:</span>${selData[i].properties.note}</div>
+                                        </div>`;
+                    
+                    $('.menu_content').append(pharmacy_card); 
+
+                }
+                setMap(selData);
+                
+                let spanList = document.querySelectorAll('.title span');
+                spanList.forEach(item => item.addEventListener('click',goto));
+           
+            }
+
+            //click icon to ldcation
+            function goto(e){
+                let selData = pharmacy_data.filter(function(item){
+                   return item.properties.id == e.target.id;
+               });              
+                map.setView([selData[0].geometry.coordinates[1],selData[0].geometry.coordinates[0]],25);
+               
+                var popup = L.popup()
+                            .setLatLng([selData[0].geometry.coordinates[1],selData[0].geometry.coordinates[0]])
+                            .setContent(`<div class="pharmacy_info">
+                                        <h3 class="title">${selData[0].properties.name}<span><i id="${selData[0].properties.id}" class="fa fa-send"></i></span></h3>
+                                        <div class="address">${selData[0].properties.address}</div>
+                                        <div class="phone">${selData[0].properties.phone}</div>
+                                        <div class="pharmacy_nums">
+                                            <div class="adult"><span>成人口罩數量</span>${selData[0].properties.mask_adult}</div>
+                                            <div class="child"><span>兒童口罩數量</span>${selData[0].properties.mask_child}</div>                       
+                                        </div>
+                                        <div class="note"><span>備註:</span>${selData[0].properties.note}</div>
+                                        </div>`)
+                            .openOn(map);
+
+       
+             }
+         
+        // 建立地圖(繪製地層)
+        var map = L.map('mapid', {
+                center: [24.1413128,120.6739851],
+                zoom: 15
+            });
+        
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        //icon
+        var redIcon = new L.Icon({
+        iconUrl: 'https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41]
+        });
+        var greenIcon = new L.Icon({
+        iconUrl: 'https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
+        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41]
+        });
+
+        
+        var markers = new L.MarkerClusterGroup().addTo(map);                   
+        for(let i =0;pharmacy_data.length>i;i++){
+            // console.log(pharmacy_data[i].properties.name)
+        markers.addLayer(L.marker([pharmacy_data[i].geometry.coordinates[1],pharmacy_data[i].geometry.coordinates[0]], {icon: redIcon})
+        .bindPopup(`<div class="pharmacy_info">
+                                        <h3 class="title">${pharmacy_data[i].properties.name}</h3>
+                                        <div class="address">${pharmacy_data[i].properties.address}</div>
+                                        <div class="phone">${pharmacy_data[i].properties.phone}</div>
+                                        <div class="pharmacy_nums">
+                                            <div class="adult"><span>成人口罩數量</span>${pharmacy_data[i].properties.mask_adult}</div>
+                                            <div class="child"><span>兒童口罩數量</span>${pharmacy_data[i].properties.mask_child}</div>                       
+                                        </div>
+                                        <div class="note"><span>備註:</span>${pharmacy_data[i].properties.note}</div>
+                                        </div>`));
+
+            // add more markers here...
+            // L.marker().addTo(map)
+            //   )
+        }
+        map.addLayer(markers);
+   
+
+        
+    </script>
+
+    
+</body>
+</html>
